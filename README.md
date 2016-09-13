@@ -51,8 +51,8 @@ Module qui acquiert la température et la pression, envoi vers BDD.
 
 #### Tâches :
 
-- [ ] Achat du ballon;
-- [ ] Achat du parachute;
+- [x] Achat du ballon;
+- [x] Achat du parachute;
 - [ ] Achat de la bonbonne d'hélium;
 - [ ] Planifier les pratiques générales.
  
