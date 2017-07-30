@@ -1,4 +1,10 @@
 import serial
+import sqlite3 as lite
+import sys
+
+def insereDB( lat, lon ):
+	con = lite.connect('sputnik.db')
+	print lat, lon
 
 def getInfo( str ):
 
@@ -23,7 +29,7 @@ def getInfo( str ):
 
         return 1
 
-gps = serial.Serial('/dev/ttyAMA0',9600)
+gps = serial.Serial('/dev/ttyAMA0',9600, timeout=5)
 
 infoGPS = { 'heure' : 0,
                 'minute' : 0,
