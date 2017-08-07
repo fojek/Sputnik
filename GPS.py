@@ -1,10 +1,29 @@
+# Pinout pour le GPS / RPi:
+# 1 2
+# 3 4
+# 5 6
+# 7 8
+# 9 10
+#
+# Vcc sur pin 1 (3.3V)
+# Gnd sur pin 9 (Gnd)
+# Rxd sur pin 8 (Txd)
+# Txd sur pin 10 (Rxd)
+
 import serial
 import sqlite3 as lite
 import sys
 
-def insereDB( lat, lon ):
+def insereDB():
 	con = lite.connect('sputnik.db')
-	print lat, lon
+	cur = con.cursor()  
+	
+	time = str(infoGPS['heure']) + ':' + str(infoGPS['minute']) + ':' + str(infoGPS['seconde'])
+	
+	requete = 'insert into position (time, latitude, longitude) values ("' + time + '",' + str(infoGPS['lat_angle']) + ',' + str(infoGPS['lon_angle']) + ');' 
+	print requete
+	cur.execute(requete)
+	con.commit()
 
 def getInfo( str ):
 
@@ -57,7 +76,8 @@ while 1:
                         if(getInfo(data[6:len(data)])):
                                 print 'Nouvelles coordonnees : '
                                 print infoGPS
+                                insereDB()
                         else:
-                                print 'Pas de connection satellite.'
-
+								print 'Pas de connection satellite.'
+								
 
