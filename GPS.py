@@ -13,6 +13,8 @@
 import serial
 import sqlite3 as lite
 import sys
+import gammu
+import time
 
 def insereDB():
 	con = lite.connect('sputnik.db')
@@ -48,6 +50,7 @@ def getInfo( str ):
 
         return 1
 
+### GPS init
 gps = serial.Serial('/dev/ttyAMA0',9600, timeout=5)
 
 infoGPS = { 'heure' : 0,
@@ -58,13 +61,32 @@ infoGPS = { 'heure' : 0,
                 'lon_angle' : 0,
                 'lon_coord' : '',
                 'altitude' : 0}
-
+                
 if not gps.isOpen():
 	print 'Erreur : impossible d ouvrir le port serie.'
 	exit()
 
 print 'Connection etablie.'
 
+### 3G init
+# Create object for talking with phone
+state_machine = gammu.StateMachine()
+
+# Load config file
+state_machine.ReadConfig()
+
+# Connect to the phone
+state_machine.Init()
+
+message = {
+    'Text': 'Sputnik 11 pret au decollage.',
+    'SMSC': {'Location': 1},
+    'Number': '18195708580',
+}
+
+state_machine.SendSMS(message)
+
+# Boucle principale
 while 1:
         data = gps.readline()
         
@@ -77,7 +99,8 @@ while 1:
                                 print 'Nouvelles coordonnees : '
                                 print infoGPS
                                 insereDB()
+                                message['Text'] = 'Position : ' + infoGPS['lat_angle'] + ',' + infoGPS['lon_angle'] + ', altitude : ' + infoGPS['altitude']
+                                state_machine.SendSMS(message)
+                                time.sleep(30)
                         else:
 								print 'Pas de connection satellite.'
-								
-

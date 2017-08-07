@@ -17,13 +17,13 @@ state_machine.Init()
 # Prepare message data
 # We tell that we want to use first SMSC number stored in phone
 message = {
-    'Text': 'python-gammu testing message',
+    'Text': 'Position: ' + lat  + ',' + lon,
     'SMSC': {'Location': 1},
     'Number': '18195708580',
 }
 
 # Actually send the message
-#state_machine.SendSMS(message)
+state_machine.SendSMS(message)
 
 while True:
 	test = state_machine.GetNextSMS(1, 0, 1)
