@@ -101,7 +101,7 @@ if not gps.isOpen():
 	print 'Erreur : impossible d ouvrir le port serie.'
 	exit()
 
-print 'Connection etablie.'
+print 'Connection GPS etablie.'
 
 ### 3G init
 # Create object for talking with phone

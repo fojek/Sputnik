@@ -3,6 +3,8 @@ import time
 
 i = 1
 
+print 'Module video demarre.'
+
 while 1:
 	# Film de 5 minutes 300000
 	video = 'raspivid -t 300000 -o ' + str(i) + '.h264'
