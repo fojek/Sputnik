@@ -15,17 +15,46 @@ import sqlite3 as lite
 import sys
 import gammu
 import time
+import os 
+import datetime
 
-def insereDB():
+def insereDB(test):
 	con = lite.connect('sputnik.db')
 	cur = con.cursor()  
 	
-	time = str(infoGPS['heure']) + ':' + str(infoGPS['minute']) + ':' + str(infoGPS['seconde'])
-	
-	requete = 'insert into position (time, latitude, longitude) values ("' + time + '",' + str(infoGPS['lat_angle']) + ',' + str(infoGPS['lon_angle']) + ');' 
+	if(test == True):
+		time = str(infoGPS['heure']) + ':' + str(infoGPS['minute']) + ':' + str(infoGPS['seconde'])
+		requete = 'insert into position (time, latitude, longitude, altitude) values ("' + time + '",' + str(infoGPS['lat_angle']) + ',' + str(infoGPS['lon_angle']) + "," + str(altitude()) + ');' 
+	else:
+		requete = 'insert into position (time, altitude) values ("' + str(datetime.datetime.now()) + '",' + str(altitude()) + ');'
+
 	print requete
 	cur.execute(requete)
+
+	requete = 'select time from position;'
+
+	resultat = cur.execute(requete)
+	
+	nb = 0	
+
+	for row in resultat:
+		nb += 1
+	
+	print 'Nombre d enregistrements : ' + str(nb)
+
 	con.commit()
+	
+# Retourne la derniere altitude connue
+def altitude():
+	con = lite.connect('sputnik.db')
+	cur = con.cursor()  
+	requete = 'select altitude from science order by time desc;'
+	resultat = cur.execute(requete)
+	result = list()
+	for row in resultat:
+		result.append(row)
+		
+	return result[0][0]
 
 def getInfo( str ):
 
@@ -49,6 +78,12 @@ def getInfo( str ):
         infoGPS['altitude'] = infos[11]
 
         return 1
+
+### Video init (background process)
+os.system("python vid.py &")
+
+### ScienceMonsta (background process)
+os.system("python scMonsta.py &")
 
 ### GPS init
 gps = serial.Serial('/dev/ttyAMA0',9600, timeout=5)
@@ -98,9 +133,11 @@ while 1:
                         if(getInfo(data[6:len(data)])):
                                 print 'Nouvelles coordonnees : '
                                 print infoGPS
-                                insereDB()
-                                message['Text'] = 'Position : ' + infoGPS['lat_angle'] + ',' + infoGPS['lon_angle'] + ', altitude : ' + infoGPS['altitude']
+                                insereDB(True)
+                                message['Text'] = 'Position : ' + infoGPS['lat_angle'] + ',' + infoGPS['lon_angle'] + ', altitude : ' + str(altitude)
                                 state_machine.SendSMS(message)
                                 time.sleep(30)
                         else:
-								print 'Pas de connection satellite.'
+				print 'Pas de connection satellite.'
+				insereDB(False)
+				time.sleep(30)
